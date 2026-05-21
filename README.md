@@ -20,7 +20,7 @@ Travel Snapshot is an **interactive web application** that allows users to explo
 
 - **Frontend:** HTML, CSS, JavaScript, [Leaflet.js](https://leafletjs.com/) for maps
 - **Backend:** Python, FastAPI
-- **Database:** PostgreSQL (hosted on Render)
+- **Database:** PostgreSQL
 - **Authentication:** JWT token-based login system
 - **APIs:** Weather, country info, and attractions served from the backend
 

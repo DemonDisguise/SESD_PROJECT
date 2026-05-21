@@ -29,15 +29,12 @@ app = FastAPI(title="Travel Snapshot API", lifespan=lifespan)
 
 
 # -------- CORS Middleware --------
-# Replace the GitHub Pages URL below with your actual one, e.g.
-# "https://yourusername.github.io"
+# Replace the GitHub Pages URL below with your actual one
 origins = [
-    "https://yourusername.github.io",  # your frontend (GitHub Pages)
-    "https://your-frontend-domain.netlify.app",  # optional future
-    "https://your-app-name.onrender.com",  # self for API testing
-    "http://localhost:8000",  # local testing
-    "http://127.0.0.1:8000",
-    "*"  # ⚠️ can be used temporarily while testing
+    "https://travel-snapshot.vercel.app",  # your Vercel frontend
+    "https://rohit2303a510j0.github.io",   # your GitHub Pages frontend
+    "http://localhost:8000",
+    "*"                                   # Allows all during setup/testing
 ]
 
 app.add_middleware(

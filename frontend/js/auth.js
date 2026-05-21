@@ -1,5 +1,5 @@
 // Base API URL — your Render backend
-const BASE_URL = "https://sesd-project-7gqa.onrender.com";
+const BASE_URL = "https://demondisguise-travel-snapshot-api.hf.space";
 
 // ---------- LOGIN ----------
 const loginForm = document.getElementById("loginForm");

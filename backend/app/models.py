@@ -13,18 +13,7 @@ def create_tables():
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
-
-    # Favorites table
-    cur.execute("""
-    CREATE TABLE IF NOT EXISTS favorites (
-        id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-        attraction_id INTEGER REFERENCES attractions(id) ON DELETE CASCADE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-    """)
-
-
+    
     # Attractions table
     cur.execute("""
     CREATE TABLE IF NOT EXISTS attractions (
@@ -39,6 +28,16 @@ def create_tables():
         image3 TEXT,
         image4 TEXT,
         status VARCHAR(50) DEFAULT 'available'
+    );
+    """)
+
+    # Favorites table
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS favorites (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        attraction_id INTEGER REFERENCES attractions(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
     """)
 

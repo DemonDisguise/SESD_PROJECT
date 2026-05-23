@@ -27,6 +27,15 @@ async def lifespan(app: FastAPI):
 # -------- App Setup --------
 app = FastAPI(title="Travel Snapshot API", lifespan=lifespan)
 
+# -------- Proxy Fix: Force HTTPS for redirects --------
+@app.middleware("http")
+async def force_https_middleware(request, call_next):
+    # This ensures that FastAPI knows it's being accessed via HTTPS
+    # and prevents 'Mixed Content' redirects to HTTP.
+    if request.headers.get("x-forwarded-proto") == "https":
+        request.scope["scheme"] = "https"
+    response = await call_next(request)
+    return response
 
 # -------- CORS Middleware --------
 origins = [

@@ -94,9 +94,12 @@ def add_attraction(attraction: AttractionCreate):
 def get_attractions(country_name: str):
     """
     Fetch all attractions for a specific country.
-    Returns a clear JSON even if no data exists.
+    If images are missing (from a manual seed), fetch them once and cache in DB.
     """
     conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection error")
+    
     cur = conn.cursor()
 
     try:
@@ -116,19 +119,40 @@ def get_attractions(country_name: str):
 
         attractions = []
         for r in rows:
+            attr_id = r[0]
+            name = r[1]
+            existing_images = [img for img in r[5:9] if img]
+            
+            # --- AUTO-CACHE LOGIC ---
+            # If no images exist in DB, fetch them from Unsplash and SAVE them
+            if not existing_images:
+                print(f"📸 Fetching new images for: {name}")
+                new_images = fetch_images_from_unsplash(name)
+                if new_images:
+                    # Pad with None for the SQL query
+                    padded = new_images + [None] * (4 - len(new_images))
+                    cur.execute("""
+                        UPDATE attractions 
+                        SET image1=%s, image2=%s, image3=%s, image4=%s 
+                        WHERE id=%s;
+                    """, (padded[0], padded[1], padded[2], padded[3], attr_id))
+                    existing_images = new_images
+            
             attractions.append({
-                "id": r[0],
-                "name": r[1],
+                "id": attr_id,
+                "name": name,
                 "lat": r[2],
                 "lng": r[3],
                 "description": r[4],
-                "images": [img for img in r[5:9] if img],
+                "images": existing_images,
                 "status": r[9]
             })
 
+        conn.commit() # Save any new image links to the DB
         return JSONResponse({"country": country_name, "attractions": attractions})
 
     except Exception as e:
+        conn.rollback()
         raise HTTPException(status_code=500, detail=f"Error fetching attractions: {str(e)}")
 
     finally:

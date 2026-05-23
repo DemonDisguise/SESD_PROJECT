@@ -138,7 +138,7 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   function showLoading(show=true){ loadingEl.style.display = show ? 'flex' : 'none'; }
 
   async function getCountryInfo(name){ const res = await fetch(`${BASE_URL}/location/${encodeURIComponent(name)}`); if(!res.ok) return null; return await res.json(); }
-  async function getWeather(lat,lng){ if(!lat||!lng) return null; const res = await fetch(`${BASE_URL}/weather?lat=${lat}&lng=${lng}`); if(!res.ok) return null; return await res.json(); }
+  async function getWeather(lat,lng){ if(!lat||!lng) return null; const res = await fetch(`${BASE_URL}/weather/?lat=${lat}&lng=${lng}`); if(!res.ok) return null; return await res.json(); }
   async function getAttractions(country){ const res = await fetch(`${BASE_URL}/attractions/${encodeURIComponent(country)}`); if(!res.ok) return {attractions:[]}; return await res.json(); }
 
   async function favoriteAttraction(attractionId) {

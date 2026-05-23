@@ -29,17 +29,17 @@ app = FastAPI(title="Travel Snapshot API", lifespan=lifespan)
 
 
 # -------- CORS Middleware --------
-# Replace the GitHub Pages URL below with your actual one
 origins = [
-    "https://travel-snapshot.vercel.app",  # your Vercel frontend
-    "https://rohit2303a510j0.github.io",   # your GitHub Pages frontend
+    "https://travel-snapshot.vercel.app",
+    "https://rohit2303a510j0.github.io",
+    "http://127.0.0.1:5500",  # Local VS Code Live Server
     "http://localhost:8000",
-    "*"                                   # Allows all during setup/testing
+    "http://localhost:5500"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,        # for production, replace with your exact GitHub Pages domain
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

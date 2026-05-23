@@ -2,6 +2,10 @@ from app.database import get_db_connection
 
 def create_tables():
     conn = get_db_connection()
+    if not conn:
+        print("❌ Could not connect to database to create tables.")
+        return
+
     cur = conn.cursor()
 
     # Users table

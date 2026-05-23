@@ -8,7 +8,8 @@ import os
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-JWT_SECRET = os.environ["JWT_SECRET"] # fallback for local
+# Use a secret for JWT. On Hugging Face, add this to 'Variables and secrets'
+JWT_SECRET = os.environ.get("JWT_SECRET", "super-secret-key-for-local-testing")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 6
 
@@ -32,51 +33,59 @@ class TokenInput(BaseModel):
 @router.post("/register", status_code=status.HTTP_201_CREATED)
 def register_user(user: RegisterRequest):
     conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection error")
+    
     cur = conn.cursor()
+    try:
+        cur.execute("SELECT * FROM users WHERE email = %s;", (user.email,))
+        if cur.fetchone():
+            raise HTTPException(status_code=400, detail="Email already registered")
 
-    cur.execute("SELECT * FROM users WHERE email = %s;", (user.email,))
-    if cur.fetchone():
+        hashed_pw = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+        cur.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s);", (user.email, hashed_pw))
+        conn.commit()
+        return {"message": "User registered successfully ✅"}
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
+    finally:
         cur.close()
         conn.close()
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    hashed_pw = bcrypt.hashpw(user.password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
-    cur.execute("INSERT INTO users (email, password_hash) VALUES (%s, %s);", (user.email, hashed_pw))
-    conn.commit()
-
-    cur.close()
-    conn.close()
-    return {"message": "User registered successfully ✅"}
 
 
 # ---------- LOGIN ----------
 @router.post("/login")
 def login_user(user: LoginRequest):
     conn = get_db_connection()
+    if not conn:
+        raise HTTPException(status_code=500, detail="Database connection error")
+    
     cur = conn.cursor()
+    try:
+        cur.execute("SELECT id, password_hash FROM users WHERE email = %s;", (user.email,))
+        user_data = cur.fetchone()
 
-    cur.execute("SELECT id, password_hash FROM users WHERE email = %s;", (user.email,))
-    user_data = cur.fetchone()
-    cur.close()
-    conn.close()
+        if not user_data:
+            raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    if not user_data:
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        user_id, password_hash = user_data
+        if not bcrypt.checkpw(user.password.encode("utf-8"), password_hash.encode("utf-8")):
+            raise HTTPException(status_code=400, detail="Invalid email or password")
 
-    user_id, password_hash = user_data
-    if not bcrypt.checkpw(user.password.encode("utf-8"), password_hash.encode("utf-8")):
-        raise HTTPException(status_code=400, detail="Invalid email or password")
+        # Generate JWT token
+        expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
+        payload = {"user_id": user_id, "exp": expire.timestamp()}
+        token = jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
 
-    # Generate JWT token
-    expire = datetime.utcnow() + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
-    payload = {"user_id": user_id, "exp": expire.timestamp()}
-    token = jwt.encode(payload, JWT_SECRET, algorithm=ALGORITHM)
-
-    return {
-        "access_token": token,
-        "token_type": "bearer",
-        "expires_at": expire.isoformat(),
-    }
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "expires_at": expire.isoformat(),
+        }
+    finally:
+        cur.close()
+        conn.close()
 
 
 # ---------- GET CURRENT USER ----------

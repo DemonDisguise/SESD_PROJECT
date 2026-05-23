@@ -14,5 +14,4 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 COPY ./app /code/app
 
 # Hugging Face Spaces run on port 7860 by default
-# We use 0.0.0.0 to allow external connections
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860"]

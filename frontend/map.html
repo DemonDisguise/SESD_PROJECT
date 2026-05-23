@@ -260,7 +260,15 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
     popEl.textContent=`Population — ${info?.population ? Number(info.population).toLocaleString() : 'N/A'}`;
     curEl.textContent=`Currency — ${info?.currency||'N/A'}`;
   }
-  function updateWeather(w){ weatherText.textContent = w?.weather ? `${w.weather.temperature ?? 'N/A'}°C • ${w.weather.windspeed ?? '—'} m/s` : '—'; }
+  function updateWeather(w){
+    if (w && w.weather) {
+      const temp = w.weather.temperature !== undefined ? w.weather.temperature : 'N/A';
+      const wind = w.weather.windspeed !== undefined ? w.weather.windspeed : 'N/A';
+      weatherText.textContent = `${temp}°C • ${wind} m/s`;
+    } else {
+      weatherText.textContent = 'Weather data unavailable';
+    }
+  }
 
   refreshBtn.addEventListener('click',()=>{ const cname=countryNameEl.textContent; if(cname && cname!=='Click a country'){ geojsonLayer.eachLayer(l=>{ if(l.feature?.properties?.name===cname) l.fire('click'); }); } });
 

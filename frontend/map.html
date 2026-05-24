@@ -132,6 +132,9 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   const map = L.map('map', { minZoom:2, worldCopyJump:true }).setView([20,0],2);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
 
+  let geojsonLayer = null;
+  let attractionMarkers = [];
+
   function showLoading(show=true){ loadingEl.style.display = show ? 'flex' : 'none'; }
 
   async function getCountryInfo(name){ const res = await fetch(`${BASE_URL}/location/${encodeURIComponent(name)}`); if(!res.ok) return null; return await res.json(); }

@@ -135,6 +135,18 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   let geojsonLayer = null;
   let attractionMarkers = [];
 
+  // --- UI ELEMENTS ---
+  const loadingEl = document.getElementById('loading');
+  const countryNameEl = document.getElementById('countryName');
+  const flagImg = document.getElementById('flagImg');
+  const capEl = document.getElementById('cap');
+  const regEl = document.getElementById('reg');
+  const popEl = document.getElementById('pop');
+  const curEl = document.getElementById('cur');
+  const weatherText = document.getElementById('weatherText');
+  const attractionList = document.getElementById('attractionList');
+  const refreshBtn = document.getElementById('refreshAttractions');
+
   function showLoading(show=true){ loadingEl.style.display = show ? 'flex' : 'none'; }
 
   async function getCountryInfo(name){ const res = await fetch(`${BASE_URL}/location/${encodeURIComponent(name)}`); if(!res.ok) return null; return await res.json(); }

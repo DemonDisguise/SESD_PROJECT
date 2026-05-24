@@ -68,28 +68,3 @@ app.include_router(favorites_router)
 @app.get("/")
 def root():
     return {"message": "🌍 Travel Snapshot Backend is running 🚀"}
-
-
-# -------- Drop Table (Admin Utility) --------
-@app.delete("/drop_table")
-def drop_table(table_name: str):
-    """
-    Drop a table by name. ⚠️ Use carefully.
-    Example: /drop_table?table_name=attractions
-    """
-    allowed_tables = ["users", "favorites", "attractions"]
-    if table_name not in allowed_tables:
-        return {"error": f"Table '{table_name}' is not allowed to be dropped."}
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        cur.execute(f"DROP TABLE IF EXISTS {table_name} CASCADE;")
-        conn.commit()
-        return {"message": f"Table '{table_name}' dropped successfully"}
-    except Exception as e:
-        conn.rollback()
-        return {"error": f"Failed to drop table '{table_name}': {str(e)}"}
-    finally:
-        cur.close()
-        conn.close()

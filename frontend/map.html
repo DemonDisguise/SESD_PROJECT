@@ -59,11 +59,10 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
     <div class="logo">🌍 Travel Snapshot</div>
     <div class="muted" style="margin-left:8px">Interactive Map</div>
   </div>
-  <div class="navlinks">
-    <a href="index.html">Home</a>
-    <a href="map.html">Map</a>
+  <div class="navlinks" id="navLinks">
+    <a href="../index.html">Home</a>
     <a href="favorites.html">Favorites</a>
-    <a href="#" id="logout">Logout</a>
+    <!-- Dynamic links will be injected here -->
   </div>
 </div>
 
@@ -111,29 +110,24 @@ html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,"Segoe 
   const BASE_URL = "https://demondisguise-travel-snapshot-api.hf.space";
   const token = localStorage.getItem("access_token");
 
-  // Debug: log access token
-//   console.log("✅ Access Token:", token);
+  // --- AUTH PROTECTION ---
+  if (!token) {
+    alert("Please log in to access the map.");
+    window.location.href = "login.html";
+    return;
+  }
 
-  const map = L.map('map', { minZoom:2, worldCopyJump:true }).setView([20,0],2);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(map);
-
-  let geojsonLayer = null;
-  let attractionMarkers = [];
-  const loadingEl = document.getElementById('loading');
-  const countryNameEl = document.getElementById('countryName');
-  const flagImg = document.getElementById('flagImg');
-  const capEl = document.getElementById('cap');
-  const regEl = document.getElementById('reg');
-  const popEl = document.getElementById('pop');
-  const curEl = document.getElementById('cur');
-  const weatherText = document.getElementById('weatherText');
-  const attractionList = document.getElementById('attractionList');
-  const refreshBtn = document.getElementById('refreshAttractions');
-
-  document.getElementById('logout').addEventListener('click', () => {
+  // Inject Logout button dynamically
+  const navLinks = document.getElementById('navLinks');
+  const logoutBtn = document.createElement('a');
+  logoutBtn.href = "#";
+  logoutBtn.textContent = "Logout";
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
     localStorage.removeItem('access_token');
     window.location.href = 'login.html';
   });
+  navLinks.appendChild(logoutBtn);
 
   function showLoading(show=true){ loadingEl.style.display = show ? 'flex' : 'none'; }
 
